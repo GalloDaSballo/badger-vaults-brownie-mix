@@ -11,6 +11,7 @@
   },
   "scripts": {
     "lint": "pretty-quick --pattern '**/*.*(sol|json)' --verbose",
+    "prettier": "prettier --write **/*.sol **/*.json",
     "lint:check": "prettier --check **/*.sol **/*.json",
     "lint:fix": "pretty-quick --pattern '**/*.*(sol|json)' --staged --verbose"
   },
