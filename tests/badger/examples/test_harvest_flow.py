@@ -26,7 +26,7 @@ def test_deposit_withdraw_single_user_flow(deployer, vault, controller, strategy
     with brownie.reverts("onlyAuthorizedActors"):
         vault.earn({"from": randomUser})
 
-    snap.settEarn({"from": settKeeper})
+    snap.settHarvest({"from": settKeeper})
 
     chain.sleep(15)
     chain.mine(1)
@@ -61,7 +61,7 @@ def test_single_user_harvest_flow(deployer, vault, sett, controller, strategy, w
     print("want.balanceOf(sett)", want.balanceOf(sett))
 
     # Earn
-    snap.settEarn({"from": settKeeper})
+    snap.settHarvest({"from": settKeeper})
 
     if tendable:
         with brownie.reverts("onlyAuthorizedActors"):
@@ -260,7 +260,7 @@ def test_single_user_harvest_flow_remove_fees(deployer, vault, sett, controller,
     snap.settDeposit(depositAmount, {"from": deployer})
 
     # Earn
-    snap.settEarn({"from": deployer})
+    snap.settHarvest({"from": deployer})
 
     chain.sleep(days(0.5))
     chain.mine()

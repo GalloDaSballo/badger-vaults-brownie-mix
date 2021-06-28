@@ -53,16 +53,13 @@ class StrategyCoreResolver:
         sett = self.manager.sett
 
         calls.append(
-            Call(sett.address, [func.sett.balance], [["sett.balance", as_wei]])
-        )
-        calls.append(
-            Call(sett.address, [func.sett.available], [["sett.available", as_wei]])
+            Call(sett.address, [func.sett.estimatedTotalAssets], [["sett.estimatedTotalAssets", as_wei]])
         )
         calls.append(
             Call(
                 sett.address,
                 [func.sett.getPricePerFullShare],
-                [["sett.pricePerFullShare", as_wei]],
+                [["sett.pricePerShare", as_wei]],
             )
         )
         calls.append(
@@ -172,41 +169,38 @@ class StrategyCoreResolver:
         """
         Withdraw Should;
         - Decrease the totalSupply() of Sett tokens
-        - Decrease the balanceOf() Sett tokens for the user based on withdrawAmount and pricePerFullShare
+        - Decrease the balanceOf() Sett tokens for the user based on withdrawAmount and pricePerShare
         - Decrease the balanceOf() want in the Strategy
         - Decrease the balance() tracked for want in the Strategy
         - Decrease the available() if it is not zero
         """
-        ppfs = before.get("sett.pricePerFullShare")
+        ppfs = before.get("sett.pricePerShare")
 
         console.print("=== Compare Withdraw ===")
         self.manager.printCompare(before, after)
 
         if params["amount"] == 0:
             assert after.get("sett.totalSupply") == before.get("sett.totalSupply")
-            # Decrease the Sett tokens for the user based on withdrawAmount and pricePerFullShare
+            # Decrease the Sett tokens for the user based on withdrawAmount and pricePerShare
             assert after.balances("sett", "user") == before.balances("sett", "user")
             return
 
         # Decrease the totalSupply of Sett tokens
         assert after.get("sett.totalSupply") < before.get("sett.totalSupply")
 
-        # Decrease the Sett tokens for the user based on withdrawAmount and pricePerFullShare
+        # Decrease the Sett tokens for the user based on withdrawAmount and pricePerShare
         assert after.balances("sett", "user") < before.balances("sett", "user")
 
         # Decrease the want in the Sett, if there was idle want
         if before.balances("want", "sett") > 0:
             assert after.balances("want", "sett") < before.balances("want", "sett")
 
-            # Available in the sett should decrease if want decreased
-            assert after.get("sett.available") <= before.get("sett.available")
-
         # Want in the strategy should be decreased, if idle in sett is insufficient to cover withdrawal
         if params["amount"] > before.balances("want", "sett"):
             # Adjust amount based on total balance x total supply
             # Division in python is not accurate, use Decimal package to ensure division is consistent w/ division inside of EVM
             expectedWithdraw = Decimal(
-                params["amount"] * before.get("sett.balance")
+                params["amount"] * before.get("sett.estimatedTotalAssets")
             ) / Decimal(before.get("sett.totalSupply"))
             # Withdraw from idle in sett first
             expectedWithdraw -= before.balances("want", "sett")
@@ -234,7 +228,7 @@ class StrategyCoreResolver:
                 "want", "sett"
             ) < before.balances("want", "strategy") + before.balances("want", "sett")
 
-        # Controller rewards should earn
+        # Rewards should earn
         if (
             before.get("strategy.withdrawalFee") > 0
             and
@@ -250,12 +244,12 @@ class StrategyCoreResolver:
         """
         Deposit Should;
         - Increase the totalSupply() of Sett tokens
-        - Increase the balanceOf() Sett tokens for the user based on depositAmount / pricePerFullShare
+        - Increase the balanceOf() Sett tokens for the user based on depositAmount / pricePerShare
         - Increase the balanceOf() want in the Sett by depositAmount
         - Decrease the balanceOf() want of the user by depositAmount
         """
 
-        ppfs = before.get("sett.pricePerFullShare")
+        ppfs = before.get("sett.pricePerShare")
         console.print("=== Compare Deposit ===")
         self.manager.printCompare(before, after)
 
@@ -284,7 +278,7 @@ class StrategyCoreResolver:
             1,
         )
 
-        # Increase the balanceOf() Sett tokens for the user based on depositAmount / pricePerFullShare
+        # Increase the balanceOf() Sett tokens for the user based on depositAmount / pricePerShare
         assert approx(
             after.balances("sett", "user"),
             before.balances("sett", "user") + expected_shares,
@@ -323,8 +317,8 @@ class StrategyCoreResolver:
         self.manager.printCompare(before, after)
         self.confirm_harvest_state(before, after, tx)
 
-        valueGained = after.get("sett.pricePerFullShare") > before.get(
-            "sett.pricePerFullShare"
+        valueGained = after.get("sett.pricePerShare") > before.get(
+            "sett.pricePerShare"
         )
 
         # # Strategist should earn if fee is enabled and value was generated

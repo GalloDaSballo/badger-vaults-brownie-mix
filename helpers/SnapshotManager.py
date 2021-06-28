@@ -13,12 +13,11 @@ from config.StrategyResolver import (
 console = Console()
 
 class SnapshotManager:
-    def __init__(self, sett, strategy, controller, key):
+    def __init__(self, vault, strategy, key):
         self.key = key
-        self.sett = sett
+        self.vault = vault
         self.strategy = strategy
-        self.controller = controller
-        self.want = interface.IERC20(self.sett.token())
+        self.want = interface.IERC20(self.vault.token())
         self.resolver = self.init_resolver(self.strategy.getName())
         self.snaps = {}
         self.settSnaps = {}
@@ -27,11 +26,10 @@ class SnapshotManager:
         assert self.want == self.strategy.want()
 
         # Common entities for all strategies
-        self.addEntity("sett", self.sett.address)
+        self.addEntity("vault", self.vault.address)
         self.addEntity("strategy", self.strategy.address)
-        self.addEntity("controller", self.controller.address)
         self.addEntity("governance", self.strategy.governance())
-        self.addEntity("governanceRewards", self.controller.rewards())
+        # self.addEntity("governanceRewards", self.controller.rewards()) TODO: Where do rewards go?
         self.addEntity("strategist", self.strategy.strategist())
 
         destinations = self.resolver.get_strategy_destinations()
@@ -98,7 +96,7 @@ class SnapshotManager:
         user = overrides["from"].address
         trackedUsers = {"user": user}
         before = self.snap(trackedUsers)
-        self.sett.deposit(amount, overrides)
+        self.vault.deposit(amount, overrides)
         after = self.snap(trackedUsers)
 
         if confirm:
@@ -111,27 +109,18 @@ class SnapshotManager:
         trackedUsers = {"user": user}
         userBalance = self.want.balanceOf(user)
         before = self.snap(trackedUsers)
-        self.sett.depositAll(overrides)
+        self.vault.depositAll(overrides)
         after = self.snap(trackedUsers)
         if confirm:
             self.resolver.confirm_deposit(
                 before, after, {"user": user, "amount": userBalance}
             )
-
-    def settEarn(self, overrides, confirm=True):
-        user = overrides["from"].address
-        trackedUsers = {"user": user}
-        before = self.snap(trackedUsers)
-        self.sett.earn(overrides)
-        after = self.snap(trackedUsers)
-        if confirm:
-            self.resolver.confirm_earn(before, after, {"user": user})
-
+            
     def settWithdraw(self, amount, overrides, confirm=True):
         user = overrides["from"].address
         trackedUsers = {"user": user}
         before = self.snap(trackedUsers)
-        tx = self.sett.withdraw(amount, overrides)
+        tx = self.vault.withdraw(amount, overrides)
         after = self.snap(trackedUsers)
         if confirm:
             self.resolver.confirm_withdraw(
@@ -141,9 +130,9 @@ class SnapshotManager:
     def settWithdrawAll(self, overrides, confirm=True):
         user = overrides["from"].address
         trackedUsers = {"user": user}
-        userBalance = self.sett.balanceOf(user)
+        userBalance = self.vault.balanceOf(user)
         before = self.snap(trackedUsers)
-        tx = self.sett.withdraw(userBalance, overrides)
+        tx = self.vault.withdraw(userBalance, overrides)
         after = self.snap(trackedUsers)
 
         if confirm:
@@ -159,9 +148,8 @@ class SnapshotManager:
             # TODO: Handle based on token decimals
             if (
                 "balance" in key
-                or key == "sett.available"
-                or key == "sett.pricePerFullShare"
-                or key == "sett.totalSupply"
+                or key == "vault.pricePerShare"
+                or key == "vault.totalSupply"
             ):
                 return val(value)
         return value
@@ -208,9 +196,9 @@ class SnapshotManager:
         table = []
         console.print("[blue]=== Permissions: {} Sett ===[/blue]".format(self.key))
 
-        table.append(["sett.keeper", self.sett.keeper()])
-        table.append(["sett.governance", self.sett.governance()])
-        table.append(["sett.strategist", self.sett.strategist()])
+        table.append(["vault.keeper", self.vault.keeper()])
+        table.append(["vault.governance", self.vault.governance()])
+        table.append(["vault.strategist", self.vault.strategist()])
 
         table.append(["---------------", "--------------------"])
 
@@ -226,7 +214,7 @@ class SnapshotManager:
         table = []
         console.print("[green]=== Status Report: {} Sett ===[green]".format(self.key))
 
-        table.append(["sett.pricePerFullShare", snap.get("sett.pricePerFullShare")])
+        table.append(["vault.pricePerShare", snap.get("vault.pricePerShare")])
         table.append(["strategy.want", snap.balances("want", "strategy")])
 
         print(tabulate(table, headers=["metric", "value"]))

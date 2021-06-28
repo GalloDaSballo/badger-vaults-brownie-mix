@@ -11,5 +11,5 @@ from helpers.time import days
 """
 
 
-def test_my_custom_test(user, gov, strategy,rewards, guardian, management, token, vault):
+def test_my_custom_test(deployed):
   assert False

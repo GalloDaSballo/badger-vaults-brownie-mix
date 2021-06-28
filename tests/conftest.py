@@ -1,7 +1,11 @@
 import pytest
 from brownie import config
 from brownie import Contract
-
+from config import (
+  WANT,
+  LP_COMPONENT,
+  REWARD_TOKEN,
+)
 
 @pytest.fixture
 def gov(accounts):
@@ -88,3 +92,7 @@ def strategy(strategist, keeper, vault, Strategy, gov):
 @pytest.fixture(scope="session")
 def RELATIVE_APPROX():
     yield 1e-5
+
+@pytest.fixture
+def tokens():
+  return [WANT, LP_COMPONENT, REWARD_TOKEN]

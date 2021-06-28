@@ -6,23 +6,29 @@ from config import DEFAULT_WITHDRAWAL_FEE
 
 MAX_BASIS = 10000
 
-def test_is_profitable(user, strategy, token, vault):
+def test_is_profitable(deployed):
+  deployer = deployed.deployer
+  vault = deployed.vault
+  controller = deployed.controller
+  strategy = deployed.strategy
+  want = deployed.want
   randomUser = accounts[6]
 
-  initial_balance = token.balanceOf(user)
+  initial_balance = want.balanceOf(deployer)
   
   settKeeper = accounts.at(vault.keeper(), force=True)
 
-  snap = SnapshotManager(vault, strategy, "StrategySnapshot")
+  snap = SnapshotManager(vault, strategy, controller, "StrategySnapshot")
 
   # Deposit
-  assert token.balanceOf(user) > 0
+  assert want.balanceOf(deployer) > 0
 
-  depositAmount = int(token.balanceOf(user) * 0.8)
+  depositAmount = int(want.balanceOf(deployer) * 0.8)
   assert depositAmount > 0
 
-  token.approve(vault.address, MaxUint256, {"from": user})
-  snap.settDeposit(depositAmount, {"from": user})
+  want.approve(vault.address, MaxUint256, {"from": deployer})
+
+  snap.settDeposit(depositAmount, {"from": deployer})
   
 
   # Earn
@@ -33,14 +39,14 @@ def test_is_profitable(user, strategy, token, vault):
   max = vault.max()
   remain = max - min
 
-  snap.settHarvest({"from": settKeeper})
+  snap.settEarn({"from": settKeeper})
 
   chain.sleep(15)
   chain.mine(1)
 
-  snap.settWithdrawAll({"from": user})
+  snap.settWithdrawAll({"from": deployer})
 
-  ending_balance = token.balanceOf(user)
+  ending_balance = want.balanceOf(deployer)
 
   initial_balance_with_fees = initial_balance * (1 - (DEFAULT_WITHDRAWAL_FEE / MAX_BASIS))
 

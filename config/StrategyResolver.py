@@ -33,8 +33,8 @@ class StrategyResolver(StrategyCoreResolver):
         self.manager.printCompare(before, after)
         self.confirm_harvest_state(before, after, tx)
 
-        valueGained = after.get("sett.pricePerFullShare") > before.get(
-            "sett.pricePerFullShare"
+        valueGained = after.get("sett.pricePerShare") > before.get(
+            "sett.pricePerShare"
         )
 
         # # Strategist should earn if fee is enabled and value was generated
