@@ -55,8 +55,11 @@ def test_profitable_harvest(
     # Harvest 1: Send funds through the strategy
     chain.sleep(1)
     strategy.harvest()
+    chain.mine(1) ## Mine so math for protocols will run
     assert pytest.approx(strategy.estimatedTotalAssets(), rel=RELATIVE_APPROX) == amount
-
+    chain.sleep(3600 * 24 * 1) ## Sleep 1 day, accrue interest
+    chain.mine(1) ## Mine to recalculate blockchain state
+    
     # TODO: Add some code before harvest #2 to simulate earning yield
     # ???
 
