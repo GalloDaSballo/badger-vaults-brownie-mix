@@ -27,8 +27,19 @@ This mix is configured for use with [Ganache](https://github.com/trufflesuite/ga
 
 6. Sign up for [Etherscan](www.etherscan.io) and generate an API key. This is required for fetching source codes of the mainnet contracts we will be interacting with. Store the API key in the `ETHERSCAN_TOKEN` environment variable.
 
+7. Install the dependencies in the package
+```bash
+## Javascript dependencies
+npm i
 
-## Basic Use
+## Python Dependencies
+pip install virtualenv
+virtualenv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
+
+## Basic Use. NOTE: WRONG
 
 To deploy the demo Badger Strategy in a development environment:
 
@@ -75,10 +86,10 @@ Deployment will set up a Vault, Controller and deploy your strategy
 
 ```
 
-## Adding Configuration
+## Adding Configuration: NOTE: NO RESOLVERS, NO CONFIG YET
 
 To ship a valid strategy, that will be evaluated to deploy on mainnet, with potentially $100M + in TVL, you need to:
-1. Write the Strategy Code in MyStrategy.sol
+1. Write the Strategy Code in Strategy.sol
 2. Customize the StrategyResolver so that snapshot testing can verify that operations happened correctly
 3. Write any extra test to confirm that the strategy is working properly
 
