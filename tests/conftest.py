@@ -47,6 +47,11 @@ def want(token):
     yield token
 
 @pytest.fixture
+def lpComponent(token):
+    ## TODO: Change this
+    yield lpComponent
+
+@pytest.fixture
 def amount(accounts, token, user):
     amount = 10_000 * 10 ** token.decimals()
     
