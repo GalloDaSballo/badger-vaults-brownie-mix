@@ -1,0 +1,6 @@
+package_name: badger-mix
+version: b0.1.2
+settings:
+  deployment_networks:
+    - mainnet
+  include_dependencies: false

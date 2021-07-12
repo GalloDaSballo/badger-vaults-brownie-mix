@@ -1,12 +1,12 @@
 """
 Deploy a fresh vault with your Strategy
 """
-from pathlib import Path
-from brownie import Strategy, accounts, config, network, project, web3
+from brownie import Strategy
+from scripts.vaults.deploy_badger_strategy import deploy_strategy_logic
 
 def main():
-  project.load(
-      Path.home() / ".brownie" / "packages" / config["dependencies"][0]
-  )
+  ## Deploy Vault and Add Strat
+  strat_address = deploy_strategy_logic(Strategy)
 
-  return deploy_script
+  ## Return Strat Address
+  return strat_address
