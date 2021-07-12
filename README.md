@@ -1,5 +1,12 @@
 # Badger Vaults Brownie Mix (V2)
 
+## TODO:
+- Use Scripts from Vaults Code, rather than copy pasting
+- Write Scripts to add to registry
+- Simplify Config by using config file for all setup
+- Figure out deployment on various networks
+- Add UI to quickly debug Strategy and Vault
+
 ## What you'll find here
 
 This is the architecture for Badger V2 (using Yearn V2 architecture)
@@ -312,3 +319,6 @@ $ brownie run deployment --network mainnet
 ```
 
 You will be prompted to enter your keystore password, and then the contract will be deployed.
+
+
+
