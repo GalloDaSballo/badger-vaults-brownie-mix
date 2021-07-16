@@ -46,10 +46,12 @@ def test_are_you_trying(user, vault, strategy, token, amount, gov):
 
   print("event")
   print(event)
-  ## TODO: Change to this
+
+  ## The event we are looking for
   # Harvested(uint256 profit, uint256 loss, uint256 debtPayment, uint256 debtOutstanding);
   # If it doesn't print, we don't token it
   assert event["profit"] > 0
+  assert event["profit"] > event["loss"] ## You can loose some funds, that's ok, but you have to be profitable
 
 
   
