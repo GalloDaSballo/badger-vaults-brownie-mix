@@ -6,29 +6,24 @@ pragma solidity 0.6.12;
 pragma experimental ABIEncoderV2;
 
 // These are the core Yearn libraries
-import {BaseStrategyUpgradeable, StrategyParams} from "@badger/contracts/BaseStrategyUpgradeable.sol";
+import {BaseStrategy, StrategyParams} from "@badger/contracts/BaseStrategy.sol";
 import {SafeERC20, SafeMath, IERC20, Address} from "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 
 // Import interfaces for many popular DeFi projects, or add your own!
 //import "../interfaces/<protocol>/<Interface>.sol";
 
-contract Strategy is BaseStrategyUpgradeable {
+contract Strategy is BaseStrategy {
     using SafeERC20 for IERC20;
     using Address for address;
     using SafeMath for uint256;
 
-    function intitialize(
+    function initialize(
         address _vault,
         address _strategist,
         address _rewards,
         address _keeper
     ) external {
-        BaseStrategyUpgradeable.initialize(
-            _vault,
-            _strategist,
-            _rewards,
-            _keeper
-        );
+        BaseStrategy._initialize(_vault, _strategist, _rewards, _keeper);
 
         // Do more stuff here if you want
         // minReportDelay = 0;
